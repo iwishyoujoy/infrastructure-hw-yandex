@@ -30,6 +30,7 @@
         "build": "react-scripts build",
         "eject": "react-scripts eject",
         "test": "react-scripts test",
+        "commit": "git-cz",
         "e2e": "playwright test --project=chromium && playwright show-report",
         "test-ci": "CI=true npm test -- --reporters=\"default\" --reporters=\"jest-html-reporter\" --reporters=\"jest-teamcity\""
     },
@@ -57,8 +58,17 @@
         ]
     },
     "devDependencies": {
+        "@commitlint/config-conventional": "^17.6.6",
         "@playwright/test": "^1.28.0",
         "@types/react-helmet": "^6.1.5",
+        "commitizen": "^4.3.0",
+        "commitlint": "^17.6.6",
+        "cz-conventional-changelog": "^3.3.0",
         "jest-html-reporter": "^3.7.0"
+    },
+    "config": {
+        "commitizen": {
+            "path": "cz-conventional-changelog"
+        }
     }
 }
