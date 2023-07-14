@@ -1,13 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - 'master'
-    # you can write here any branches you want to test on push
-  pull_request:
-    branches:
-      - 'master'
+on: [push, pull_request]
 
 jobs:
   build:
