@@ -23,7 +23,7 @@ jobs:
       run: npm run test
 
     - name: Install Playwright
-    run: npx playwright install 
+      run: npx playwright install
 
     - name: Setup xvfb
       run: sudo apt-get install xvfb -y
