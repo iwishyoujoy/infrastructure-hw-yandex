@@ -64,6 +64,7 @@
         "commitizen": "^4.3.0",
         "commitlint": "^17.6.6",
         "cz-conventional-changelog": "^3.3.0",
+        "husky": "^8.0.3",
         "jest-html-reporter": "^3.7.0"
     },
     "config": {
