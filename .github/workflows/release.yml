@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  release:
     name: release process
     runs-on: ubuntu-latest
 
@@ -21,13 +21,6 @@ jobs:
 
     - name: Check release version from tag
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-           echo $RELEASE_VERSION > version.txt
-
-    - name: Upload Release Version
-      uses: actions/upload-artifact@v2
-      with:
-        name: Release-Version
-        path: version.txt
     
     - name: Generate changelog
       run: npx standard-version --skip.commit --skip.tag
@@ -81,3 +74,48 @@ jobs:
               labels: ['RELEASE']
             })
           }
+
+  checks:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build
+      run: npm run build
+
+    - name: Run unit tests
+      run: npm run test
+
+    - name: Install Playwright
+      run: npx playwright install
+
+    - name: Run e2e tests
+      run: npm run e2e
+
+    - name: Update Issue with Check Run URL
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.RELEASE_PAT }}
+        script: |
+          const runId = context.runId;
+          const issueTitle = `Release ${process.env.RELEASE_VERSION}`;
+          const checksURL = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${runId}`;
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          const releaseIssue = issues.find(issue => issue.title === issueTitle);
+          const body =  `${releaseIssue.body}\n\n[Check results](${checksURL}).`;
+          github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: releaseIssue.number,
+            body: body,
+          });
