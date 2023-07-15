@@ -105,12 +105,18 @@ jobs:
         script: |
           const runId = context.runId;
           const issueTitle = `Release ${process.env.RELEASE_VERSION}`;
+
+          console.log(issueTitle);
+
           const checksURL = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${runId}`;
           const { data: issues } = await github.rest.issues.listForRepo({
             owner: context.repo.owner,
             repo: context.repo.repo,
           });
           const releaseIssue = issues.find(issue => issue.title === issueTitle);
+
+          console.log(releaseIssue);
+
           const body =  `${releaseIssue.body}\n\n[Check results](${checksURL}).`;
           github.rest.issues.update({
             owner: context.repo.owner,
