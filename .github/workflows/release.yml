@@ -74,7 +74,6 @@ jobs:
               labels: ['RELEASE']
             })
           }
-
   checks:
     name: release checker 
     needs: release
