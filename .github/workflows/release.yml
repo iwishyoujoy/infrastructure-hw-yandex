@@ -31,6 +31,11 @@ jobs:
         name: Changelog
         path: CHANGELOG.md
 
+    - name: Read Changelog
+      id: changelog
+      run: |
+        echo "::set-output name=body::$(cat ./CHANGELOG.md | sed 's/$/\\n/' | tr -d '\n')"
+
     - name: Create Release Issue
       uses: actions/github-script@v5
       with:
@@ -41,6 +46,7 @@ jobs:
           body += `Date: ${new Date().toLocaleString()}\n`
           body += `Version: ${process.env.RELEASE_VERSION}\n\n`
           body += 'Changelog: \n'
+          body += `${{ steps.changelog.outputs.body }}\n`
           github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
