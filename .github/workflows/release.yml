@@ -47,10 +47,29 @@ jobs:
           body += `Version: ${process.env.RELEASE_VERSION}\n\n`
           body += 'Changelog: \n'
           body += `${{ steps.changelog.outputs.body }}\n`
-          github.rest.issues.create({
+          
+          // searching for issue
+          const { data: issues } = await github.rest.issues.listForRepo({
             owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: issueTitle,
-            body: body,
-            labels: ['RELEASE']
+            repo: context.repo.repo
           })
+
+          const existingIssue = issues.find(issue => issue.title === issueTitle)
+
+          if (existingIssue) {
+            // if issue exists, update it
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: existingIssue.number,
+              body: body
+            })
+          } else {
+            // if issue doesn't exist, create new one
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: issueTitle,
+              body: body,
+              labels: ['RELEASE']
+            })
