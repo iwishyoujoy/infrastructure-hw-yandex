@@ -1,0 +1,56 @@
+name: Release checks
+
+on: 
+  workflow_run:
+    workflows: ["Release"]
+    types: 
+      - completed
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.event != 'pull_request' }}
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Run unit tests
+      run: npm run test
+
+    - name: Install Playwright
+      run: npx playwright install
+
+    - name: Run e2e tests
+      run: npm run e2e
+
+    - name: Update Issue with Check Run URL
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.RELEASE_PAT }}
+        script: |
+          const runId = context.runId;
+          const issueTitle = `Release ${process.env.RELEASE_VERSION}`;
+          const checksURL = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${runId}`;
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          const releaseIssue = issues.find(issue => issue.title === issueTitle);
+          const body =  `${releaseIssue.body}\n\n[Check results](${checksURL}).`;
+          github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: releaseIssue.number,
+            body: body,
+          });
