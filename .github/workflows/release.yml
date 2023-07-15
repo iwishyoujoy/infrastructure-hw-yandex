@@ -131,7 +131,13 @@ jobs:
         github-token: ${{ secrets.RELEASE_PAT }}
         script: |
           const issueTitle = `Release ${process.env.RELEASE_VERSION}`;
-          const deployURL = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/tree/gh-pages`;
+
+          console.log(issueTitle);
+
+          const deployURL = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/`;
+
+          console.log(deployURL);
+
           const { data: issues } = await github.rest.issues.listForRepo({
             owner: context.repo.owner,
             repo: context.repo.repo,
