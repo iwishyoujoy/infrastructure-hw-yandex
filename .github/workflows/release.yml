@@ -76,6 +76,7 @@ jobs:
           }
 
   checks:
+    name: release checker 
     needs: release
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +87,7 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
-      
+
     - name: Build
       run: npm run build
 
@@ -118,4 +119,48 @@ jobs:
             repo: context.repo.repo,
             issue_number: releaseIssue.number,
             body: body,
+          });
+    
+     - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        personal_token: ${{ secrets.PERSONAL_TOKEN }}
+        publish_dir: ./build
+
+    - name: Add Deploy Link to Release Issue
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.RELEASE_PAT }}
+        script: |
+          const issueTitle = `Release ${process.env.RELEASE_VERSION}`;
+          const deployURL = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/tree/gh-pages`;
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          const releaseIssue = issues.find(issue => issue.title === issueTitle);
+          const body = `${releaseIssue.body}\n\n[Deploy results](${deployURL}).`;
+          github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: releaseIssue.number,
+            body: body,
+          });
+
+    - name: Close Release Issue
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.RELEASE_PAT }}
+        script: |
+          const issueTitle = `Release ${process.env.RELEASE_VERSION}`;
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          const releaseIssue = issues.find(issue => issue.title === issueTitle);
+          github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: releaseIssue.number,
+            state: 'closed',
           });
