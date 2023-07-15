@@ -75,8 +75,8 @@ jobs:
             })
           }
 
-  checks:
-    name: release checker 
+  check:
+    name: checker 
     needs: release
     runs-on: ubuntu-latest
     steps:
