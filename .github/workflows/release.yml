@@ -73,3 +73,4 @@ jobs:
               body: body,
               labels: ['RELEASE']
             })
+          }
