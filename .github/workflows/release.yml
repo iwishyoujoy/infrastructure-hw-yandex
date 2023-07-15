@@ -34,15 +34,14 @@ jobs:
     - name: Create Release Issue
       uses: actions/github-script@v5
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const issueTitle = `Release ${process.env.RELEASE_VERSION}`
           let body = `Author: ${context.payload.sender.login}\n`
           body += `Date: ${new Date().toLocaleString()}\n`
           body += `Version: ${process.env.RELEASE_VERSION}\n\n`
           body += 'Changelog: \n'
-          body += '${{ steps.changelog.outputs.text }}'
-          github.issues.create({
+          github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: issueTitle,
