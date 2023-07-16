@@ -3,8 +3,8 @@ name: CI/CD
 on: [push, pull_request]
 
 jobs:
-  setup:
-    name: setup
+  tests:
+    name: ci test
     runs-on: ubuntu-latest
 
     steps:
@@ -19,26 +19,9 @@ jobs:
     - name: Build
       run: npm run build
 
-  unit-test:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
     - name: Run unit tests
       run: npm run test
 
-  e2e-test:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
     - name: Install Playwright
       run: npx playwright install
 
