@@ -13,6 +13,10 @@ jobs:
       with:
         node-version: '14'
 
+    - name: Lint commit messages
+      if: contains(github.ref, 'refs/heads/')
+      run: npx commitlint --from=master
+
     - name: Install dependencies
       run: npm ci
     
@@ -28,6 +32,4 @@ jobs:
     - name: Run e2e tests
       run: npm run e2e
 
-    - name: Lint commit messages
-      if: contains(github.ref, 'refs/heads/')
-      run: npx commitlint --from=master
+    
